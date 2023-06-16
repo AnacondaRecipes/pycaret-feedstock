@@ -101,6 +101,9 @@ outputs:
         - fugue >=0.8.0
         - dask-core
         - dash
+        - pip
+      commands:
+        - pip check
 
   # compatibility with packagename before split into options
   - name: pycaret
