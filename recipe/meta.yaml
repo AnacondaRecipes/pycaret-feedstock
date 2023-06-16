@@ -35,6 +35,7 @@ outputs:
         - setuptools
         - wheel
       run:
+        - python
         # Base
         - ipywidgets >=7.6.5  # required by pycaret.internal.display
         - ipython >=5.5.0
