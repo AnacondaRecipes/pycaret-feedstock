@@ -94,6 +94,43 @@ outputs:
         # pycaret 3.0.2 has requirement numpy<1.24,>=1.21, but you have numpy 1.24.3.
         #- pip check
 
+  - name: {{ name }}-models
+    build:
+      skip: true  # [py<38]
+    requirements:
+      host:
+        - python
+      run:
+        - python
+        - {{ pin_subpackage('pycaret', exact=True) }}
+        # Models
+        - xgboost >=1.1.0
+        - catboost >=0.23.2
+        - kmodes >=0.11.1
+        - mlxtend >=0.19.0
+        # TODO: enable statsforecast before uploading to the destination channel
+        #- statsforecast >=0.5.5
+        - scikit-learn-intelex >=2023.0.1  # [((win or linux or osx) and x86_64)]
+    test:
+      imports:
+        - pycaret
+
+  - name: {{ name }}-parallel
+    build:
+      skip: true  # [py<38]
+    requirements:
+      host:
+        - python
+      run:
+        - python
+        - {{ pin_subpackage('pycaret', exact=True) }}
+        # Parallel
+        - fugue >=0.8.0
+        - flask >=2.0.3
+    test:
+      imports:
+        - pycaret
+
   # - name: pycaret-full
   #   build:
   #     # Until all of the pycaret-* packages are available in defaults, skipping the pycaret-full metapackage.
@@ -140,25 +177,6 @@ outputs:
   #     imports:
   #       - pycaret
 
-  # - name: pycaret-models
-  #   requirements:
-  #     host:
-  #       - python
-  #     run:
-  #       - python
-  #       - {{ pin_subpackage('pycaret', exact=True) }}
-  #       # Models
-  #       - xgboost >=1.1.0
-  #       - catboost >=0.23.2
-  #       - kmodes >=0.11.1
-  #       - mlxtend >=0.19.0
-  #       # TODO: enable statsforecast
-  #       #- statsforecast >=0.5.5
-  #       - scikit-learn-intelex >=2023.0.1
-  #   test:
-  #     imports:
-  #       - pycaret
-
   # - name: pycaret-tuners
   #   build:
   #     skip: true
@@ -199,22 +217,6 @@ outputs:
   #   test:
   #     imports:
   #       - pycaret
-
-  - name: {{ name }}-parallel
-    build:
-      skip: true  # [py<38]
-    requirements:
-      host:
-        - python
-      run:
-        - python
-        - {{ pin_subpackage('pycaret', exact=True) }}
-        # Parallel
-        - fugue >=0.8.0
-        - flask >=2.0.3
-    test:
-      imports:
-        - pycaret
 
 about:
   home: https://github.com/pycaret/pycaret
