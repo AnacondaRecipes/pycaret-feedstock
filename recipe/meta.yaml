@@ -43,27 +43,10 @@ outputs:
         # dummy test; actual tests are in subpackages
         - pycaret
 
-  # compatibility with packagename before split into options
-  - name: pycaret
-    requirements:
-      host:
-        - python
-      run:
-        - python
-        - {{ pin_subpackage('pycaret-core', exact=True) }}
-    test:
-      imports:
-        - pycaret
-      requires:
-        - pip
-      commands:
-        - pip check
-
   - name: pycaret-core
-    script: build-core.sh  # [not win]
-    script: build-core.bat  # [win]
     build:
       skip: true  # [py<38]
+      script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
     requirements:
       host:
         - python
@@ -75,15 +58,15 @@ outputs:
         - ipywidgets >=7.6.5  # required by pycaret.internal.display
         - ipython >=5.5.0
         - tqdm >=4.62.0  # required by pycaret.internal.display
-        - numpy >=1.21, <1.24  # Can't >=1.24 because of np.float deprecation
-        - pandas >=1.3.0, <2.0.0  # Can't >=2.0.0 because of sktime
+        - numpy >=1.21,<1.24  # Can't >=1.24 because of np.float deprecation
+        - pandas >=1.3.0,<2.0.0  # Can't >=2.0.0 because of sktime
         - jinja2 >=1.2  # Required by pycaret.internal.utils --> pandas.io.formats.style
         - scipy <2.0.0  # Can't >=2.0.0 due to sktime
         - joblib >=1.2.0  # joblib<1.2.0 is vulnerable to Arbitrary Code Execution (https://github.com/advisories/GHSA-6hrg-qmvc-2xh8)
         - scikit-learn >=1.0
         - pyod >=1.0.8
         - imbalanced-learn >=0.8.1
-        - category-encoders >=2.4.0
+        - category_encoders >=2.4.0
         - lightgbm >=3.0.0
         - numba >=0.55.0
         - requests >=2.27.1  # Required by pycaret.datasets
@@ -118,8 +101,28 @@ outputs:
         - fugue >=0.8.0
         - dask-core
         - dash
+
+  # compatibility with packagename before split into options
+  - name: pycaret
+    build:
+      skip: true
+    requirements:
+      host:
+        - python
+      run:
+        - python
+        - {{ pin_subpackage('pycaret-core', exact=True) }}
+    test:
+      imports:
+        - pycaret
+      requires:
+        - pip
+      commands:
+        - pip check
   
   - name: pycaret-analysis
+    build:
+      skip: true
     requirements:
       host:
         - python
@@ -142,6 +145,8 @@ outputs:
         - pycaret
 
   - name: pycaret-models
+    build:
+      skip: true
     requirements:
       host:
         - python
@@ -160,6 +165,8 @@ outputs:
         - pycaret
 
   - name: pycaret-tuners
+    build:
+      skip: true
     requirements:
       host:
         - python
@@ -178,6 +185,8 @@ outputs:
         - pycaret
 
   - name: pycaret-mlops
+    build:
+      skip: true
     requirements:
       host:
         - python
@@ -197,6 +206,8 @@ outputs:
         - pycaret
 
   - name: pycaret-parallel
+    build:
+      skip: true
     requirements:
       host:
         - python
