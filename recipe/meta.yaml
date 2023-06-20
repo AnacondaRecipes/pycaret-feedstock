@@ -10,7 +10,7 @@ source:
   sha256: d1bea16403ecf848720aec53d2bccf39374025e8ae3232321b173060489aca73
 
 build:
-  number: 0
+  number: 1
   # Not available on linux-s390x: kaleido-core, plotly-resampler, sktime, fugue, pyod, numba, moto
   # kaleido-core is not available on linux-ppc64le
   skip: true  # [py<38 or (linux and (s390x or ppc64le))]
@@ -105,8 +105,7 @@ outputs:
         - catboost >=0.23.2
         - kmodes >=0.11.1
         - mlxtend >=0.19.0
-        # TODO: enable statsforecast before uploading to the destination channel
-        #- statsforecast >=0.5.5
+        - statsforecast >=0.5.5
         - scikit-learn-intelex >=2023.0.1  # [x86_64]
     test:
       imports:
