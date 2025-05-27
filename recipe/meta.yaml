@@ -73,6 +73,9 @@ outputs:
         - sktime ==0.26.0
         - tbats >=1.1.3
         - pmdarima >=2.0.4
+    test:
+      imports:
+        - pycaret
 
   - name: {{ name }}-models
     build:
@@ -208,7 +211,7 @@ outputs:
     {% set tests_to_skip = "" %}
     # Interactive tests
     {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_regression_plots.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/tests/test_anomaly.py" %}
+    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_anomaly.py" %}
     # Missing fairlearn
     {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_check_fairness.py" %}
     {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_create_api.py" %}
@@ -220,6 +223,7 @@ outputs:
     {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_classification_engines.py" %}
     {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_classification_plots.py" %}
     {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_classification.py" %}
+    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_classification_parallel.py" %}
 
   # Testing all the subpackages together as the upstream does not seperate the tests
   # between core functionalities and extras
@@ -253,7 +257,7 @@ outputs:
         # Disable pip check because of errors:
         # pycaret 3.3.2 requires kaleido, which is not installed. (using kaleido-core)
         # - pip check
-        - pytest -vv {{ tests_to_skip }}
+        - pytest -vv {{ tests_to_skip }} tests
 
 about:
   home: https://github.com/pycaret/pycaret
