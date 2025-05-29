@@ -88,8 +88,8 @@ outputs:
         - {{ pin_subpackage('pycaret', exact=True) }}
         # Models
         - xgboost >=1.1.0  # [(not py311) or (not win)]
-        - catboost >=0.23.2  # [not osx]
-        - catboost >=0.23.2,<1.2  # [osx]
+        - catboost >=0.23.2
+        # - catboost >=0.23.2,<1.2  # [osx]
         - kmodes >=0.11.1
         - mlxtend >=0.19.0
         - statsforecast >=0.5.5,<1.6.0
@@ -111,8 +111,8 @@ outputs:
         # Putting upper bound because:
         # AttributeError: module 'dask.dataframe.core' has no attribute 'DataFrame'
         # in >=2025
-        - dask >=2024.4.1,<2025
-        - distributed >=2024.4.1
+        - dask ==2024.12.1
+        - distributed ==2024.12.1
         - fugue >=0.8.0
         - flask >=2.0.3
         - werkzeug >=2.2,<3.0
@@ -250,7 +250,7 @@ outputs:
         - dash
         # https://github.com/pycaret/pycaret/issues/4100
         - mlflow >=2.0.0,<=2.16.0
-        - daal4py
+        - daal4py  #[x86_64]
         - scikit-learn-intelex  #[x86_64]
       commands:
         - export USE_DAAL4PY_SKLEARN=1
