@@ -257,7 +257,7 @@ outputs:
         # Disable pip check because of errors:
         # pycaret 3.3.2 requires kaleido, which is not installed. (using kaleido-core)
         # - pip check
-        - pytest -vv {{ tests_to_skip }} tests
+        - pytest -n 1 -vv {{ tests_to_skip }} tests
 
 about:
   home: https://github.com/pycaret/pycaret
@@ -266,10 +266,12 @@ about:
   license_file: LICENSE
   summary: PyCaret - An open source, low-code machine learning library in Python.
   description: PyCaret - An open source, low-code machine learning library in Python.
-  doc_url: https://pycaret.readthedocs.io/en/latest/
+  doc_url: https://pycaret.readthedocs.io
   dev_url: https://github.com/pycaret/pycaret
 
 extra:
   recipe-maintainers:
     - melonhead901
     - mpaulonis
+  skip_lints:
+    - wrong_output_script_key
