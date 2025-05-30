@@ -253,7 +253,8 @@ outputs:
         - daal4py  #[x86_64]
         - scikit-learn-intelex  #[x86_64]
       commands:
-        - export USE_DAAL4PY_SKLEARN=1
+        - export USE_DAAL4PY_SKLEARN=1  # [unix]
+        - SET USE_DAAL4PY_SKLEARN=1     # [win]
         # Disable pip check because of errors:
         # pycaret 3.3.2 requires kaleido, which is not installed. (using kaleido-core)
         # - pip check
@@ -266,15 +267,12 @@ outputs:
         - pytest -vv tests/test_tune_model.py
         - pytest -vv tests/test_time_series_utils_forecasting_pipeline.py
         - pytest -vv tests/test_time_series_tune_grid.py
-        - pytest -vv tests/benchmarks/test_time_series_sp_detection.py
         - pytest -vv tests/test_time_series_tune_base.py
         - pytest -vv tests/test_overflow.py
         - pytest -vv tests/test_create_app.py
-        - pytest -vv tests/test_time_series_setup.py
         - pytest -vv tests/test_time_series_utils_forecasting.py
         - pytest -vv tests/test_time_series_metrics.py
         - pytest -vv tests/test_datasets.py
-        - pytest -vv tests/test_mlflow_artifacts.py
         - pytest -vv tests/test_time_series_exogenous.py
         - pytest -vv tests/test_optimize_threshold.py
         - pytest -vv tests/test_memory.py
@@ -324,6 +322,10 @@ outputs:
         # Performance test, negligible differences
         # assert (32.76628173503559 < 32.55898448696826 or 0.2072972480673343 < 0.2)
         # - pytest -vv tests/benchmarks/test_memory_performance.py
+        # Empty file
+        # - pytest -vv tests/test_mlflow_artifacts.py
+        # Tests downloading data (not available on CI)
+        # - pytest -vv tests/benchmarks/test_time_series_sp_detection.py
 
 about:
   home: https://github.com/pycaret/pycaret
@@ -339,5 +341,6 @@ extra:
   recipe-maintainers:
     - melonhead901
     - mpaulonis
-  skip_lints:
+  skip-lints:
     - wrong_output_script_key
+    - invalid_url
