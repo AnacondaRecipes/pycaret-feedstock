@@ -255,6 +255,7 @@ outputs:
       commands:
         - export USE_DAAL4PY_SKLEARN=1  # [unix]
         - SET USE_DAAL4PY_SKLEARN=1     # [win]
+        - pytest -vv tests/test_regression.py
         # Disable pip check because of errors:
         # pycaret 3.3.2 requires kaleido, which is not installed. (using kaleido-core)
         # - pip check
@@ -282,15 +283,13 @@ outputs:
         - pytest -vv tests/test_time_series_mlflow.py
         - pytest -vv tests/test_time_series_plots.py
         - pytest -vv tests/test_persistence_experiment.py
-        - pytest -vv tests/test_classification_tuning.py
-        - pytest -vv tests/test_regression_tuning.py
         - pytest -vv tests/test_dashboard.py
         - pytest -vv tests/test_multiclass.py
         - pytest -vv tests/test_time_series_indices.py
         - pytest -vv tests/test_time_series_base.py
         - pytest -vv tests/test_time_series_utils_plots.py
         - pytest -vv tests/test_preprocess.py
-        - pytest -vv tests/test_regression.py
+        # - pytest -vv tests/test_regression.py
         - pytest -vv tests/test_models.py
         - pytest -vv tests/test_time_series_feat_eng.py
         - pytest -vv tests/test_time_series_stats.py
@@ -322,8 +321,10 @@ outputs:
         # Performance test, negligible differences
         # assert (32.76628173503559 < 32.55898448696826 or 0.2072972480673343 < 0.2)
         # - pytest -vv tests/benchmarks/test_memory_performance.py
-        # Empty file
+        # Empty file / tests skipped by upstream
         # - pytest -vv tests/test_mlflow_artifacts.py
+        # - pytest -vv tests/test_classification_tuning.py
+        # - pytest -vv tests/test_regression_tuning.py
         # Tests downloading data (not available on CI)
         # - pytest -vv tests/benchmarks/test_time_series_sp_detection.py
 
