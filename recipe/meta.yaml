@@ -210,23 +210,6 @@ outputs:
       imports:
         - pycaret
 
-    {% set tests_to_skip = "" %}
-    # Interactive tests
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_regression_plots.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_anomaly.py" %}
-    # Missing fairlearn
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_check_fairness.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_create_api.py" %}
-    # Missing deps from pycaret-mlops
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_convert_model.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_create_docker.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_check_drift.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_clustering.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_classification_engines.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_classification_plots.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_classification.py" %}
-    {% set tests_to_skip = tests_to_skip + " --ignore=tests/test_classification_parallel.py" %}
-
   # Testing all the subpackages together as the upstream does not seperate the tests
   # between core functionalities and extras
   - name: {{ name }}-tests
@@ -284,7 +267,7 @@ outputs:
         - pytest -vv tests/test_utils_datetime.py
         - pytest -vv tests/test_utils.py
         - pytest -vv tests/test_time_series_mlflow.py
-        - pytest -vv tests/test_time_series_plots.py
+        - pytest -vv tests/test_time_series_plots.py  # [not win]
         - pytest -vv tests/test_persistence_experiment.py
         - pytest -vv tests/test_dashboard.py
         - pytest -vv tests/test_multiclass.py
