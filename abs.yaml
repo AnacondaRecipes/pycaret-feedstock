@@ -2,6 +2,4 @@ upload_channels:
   - sfe1ed40
 
 channels:
-  - https://staging.continuum.io/prefect/fs/pyod-feedstock/pr3/d411e86
-  - https://staging.continuum.io/prefect/fs/sktime-feedstock/pr5/31b79d7
-  - https://staging.continuum.io/prefect/fs/skbase-feedstock/pr2/7cb9547
+  - https://staging.continuum.io/prefect/fs/msgpack-python-feedstock/pr2/88d2892
