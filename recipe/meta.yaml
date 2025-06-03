@@ -21,6 +21,8 @@ requirements:
     - pip
     - setuptools
     - wheel
+  run_constrained:
+    - blas=*=openblas  # [osx and x86_64]
 
 outputs:
   - name: {{ name }}
