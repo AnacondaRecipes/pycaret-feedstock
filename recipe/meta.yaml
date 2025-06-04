@@ -13,6 +13,12 @@ build:
   number: 0
   # RuntimeError: ('Pycaret only supports python 3.9, 3.10, 3.11. Your actual Python version: ', sys.version_info(major=3, minor=12, micro=9, releaselevel='final', serial=0), 'Please DOWNGRADE your Python version.')
   skip: true  # [py<39 or py>311]
+  # scikit-learn requires incompatible scipy due to some bug:
+    # Build fails on osx-64 without the newest version of scipy.
+    # https://github.com/scikit-learn/scikit-learn/issues/28367#issuecomment-1941101095
+    #- scipy >=1.13.0  # [osx and x86_64]
+  # while pycaret needs <=1.11.4 for compatibility (verified)
+  skip: true  # [osx and x86_64]
 
 requirements:
   host:
@@ -251,7 +257,6 @@ outputs:
         - pytest -vv tests/test_time_series_utils.py
         - pytest -vv tests/test_probability_threshold.py
         - pytest -vv tests/test_time_series_tune_random.py
-        - pytest -vv tests/test_tune_model.py
         - pytest -vv tests/test_time_series_utils_forecasting_pipeline.py
         - pytest -vv tests/test_time_series_tune_grid.py
         - pytest -vv tests/test_time_series_tune_base.py
@@ -311,6 +316,7 @@ outputs:
         # - pytest -vv tests/test_classification_tuning.py
         # - pytest -vv tests/test_regression_tuning.py
         # Tests downloading data (not available on CI)
+        # - pytest -vv tests/test_tune_model.py
         # - pytest -vv tests/benchmarks/test_time_series_sp_detection.py
 
 about:
