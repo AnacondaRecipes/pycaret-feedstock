@@ -221,7 +221,7 @@ outputs:
   - name: {{ name }}-tests
     build:
       # Uncomment the skip before merging to not produce unnecessary package
-      # skip: true
+      skip: true  # [not arm64]
     requirements:
       host:
         - python
@@ -253,12 +253,12 @@ outputs:
         #  most likely due to OOM
         # test_regression is safest to run first, as it becomes unstable when ran later
         - pytest -vv tests/test_regression.py
+        - pytest -vv tests/test_time_series_tune_grid.py
         - pytest -vv tests/test_time_series_parallel.py
         - pytest -vv tests/test_time_series_utils.py
         - pytest -vv tests/test_probability_threshold.py
         - pytest -vv tests/test_time_series_tune_random.py
         - pytest -vv tests/test_time_series_utils_forecasting_pipeline.py
-        - pytest -vv tests/test_time_series_tune_grid.py
         - pytest -vv tests/test_time_series_tune_base.py
         - pytest -vv tests/test_overflow.py
         - pytest -vv tests/test_create_app.py
@@ -316,8 +316,9 @@ outputs:
         # - pytest -vv tests/test_classification_tuning.py
         # - pytest -vv tests/test_regression_tuning.py
         # Tests downloading data (not available on CI)
-        # - pytest -vv tests/test_tune_model.py
         # - pytest -vv tests/benchmarks/test_time_series_sp_detection.py
+        # Verified locally osx-arm64, linux-aarch64, linux-64 (unstable on CI)
+        # - pytest -vv tests/test_tune_model.py
 
 about:
   home: https://github.com/pycaret/pycaret
