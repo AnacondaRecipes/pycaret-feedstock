@@ -36,7 +36,7 @@ outputs:
     requirements:
       host:
         - python
-        - numpy >=1.21, <1.27
+        - numpy >=1.21,<1.27
         - pip
         - setuptools
         - wheel
@@ -46,7 +46,7 @@ outputs:
         - ipython >=5.5.0
         - ipywidgets >=7.6.5
         - tqdm >=4.62.0
-        - numpy >=1.21, <1.27
+        - numpy >=1.21,<1.27
         - pandas >=1.3.0,<2.2.0
         - jinja2 >=3
         - scipy >=1.6.1,<=1.11.4
@@ -117,8 +117,7 @@ outputs:
         # Putting upper bound because:
         # AttributeError: module 'dask.dataframe.core' has no attribute 'DataFrame'
         # in >=2025
-        # - dask >=2024.4.1,<2025
-        - dask ==2024.5.0
+        - dask >=2024.4.1,<2025
         - distributed >=2024.4.1,<2025
         - msgpack-python >=1.0.7
         - fugue >=0.8.0
@@ -161,7 +160,7 @@ outputs:
         - python
         - {{ pin_subpackage('pycaret', exact=True) }}
         # Analysis
-        - shap >=0.44.0,==0.44.*
+        - shap >=0.44.0,<0.45.0
         - interpret >=0.2.7
         - umap-learn >=0.5.2
         - pyyaml
@@ -211,7 +210,7 @@ outputs:
         - fastapi >=0.75.0  # For web api
         - uvicorn >=0.17.6  # For web api
         - m2cgen >=0.9.0  # For model conversion
-        - evidently >=0.4.16,==0.4.*  # for drift reporting
+        - evidently >=0.4.16,<0.5.0  # for drift reporting
     test:
       imports:
         - pycaret
@@ -221,7 +220,7 @@ outputs:
   - name: {{ name }}-tests
     build:
       # Uncomment the skip before merging to not produce unnecessary package
-      skip: true  # [not arm64]
+      skip: true
     requirements:
       host:
         - python
