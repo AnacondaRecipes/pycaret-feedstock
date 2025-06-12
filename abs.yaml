@@ -1,5 +1,2 @@
 upload_channels:
   - sfe1ed40
-
-channels:
-  - https://staging.continuum.io/prefect/fs/msgpack-python-feedstock/pr2/88d2892
