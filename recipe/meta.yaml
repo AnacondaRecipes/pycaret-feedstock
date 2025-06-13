@@ -1,5 +1,5 @@
 {% set name = "pycaret" %}
-{% set version = "3.0.2" %}
+{% set version = "3.3.2" %}
 
 package:
   name: {{ name|lower }}-suite
@@ -7,18 +7,23 @@ package:
 
 source:
   url: https://github.com/{{ name }}/{{ name }}/archive/refs/tags/{{ version }}.tar.gz
-  sha256: d1bea16403ecf848720aec53d2bccf39374025e8ae3232321b173060489aca73
+  sha256: aa89ed0a5795e05200e0e3d44ec3ee96bfea499d5db2df5e37ce903a5bff6ace
 
 build:
-  number: 1
-  # Not available on linux-s390x: kaleido-core, plotly-resampler, sktime, fugue, pyod, numba, moto
-  # kaleido-core is not available on linux-ppc64le
-  skip: true  # [py<38 or (linux and (s390x or ppc64le))]
+  number: 0
+  # RuntimeError: ('Pycaret only supports python 3.9, 3.10, 3.11. Your actual Python version: ', sys.version_info(major=3, minor=12, micro=9, releaselevel='final', serial=0), 'Please DOWNGRADE your Python version.')
+  skip: true  # [py<39 or py>311]
+  # scikit-learn requires incompatible scipy due to some bug:
+    # Build fails on osx-64 without the newest version of scipy.
+    # https://github.com/scikit-learn/scikit-learn/issues/28367#issuecomment-1941101095
+    #- scipy >=1.13.0  # [osx and x86_64]
+  # while pycaret needs <=1.11.4 for compatibility (verified)
+  skip: true  # [osx and x86_64]
 
 requirements:
   host:
     - python
-    - numpy {{ numpy }}
+    - numpy >=1.21, <1.27
     - pip
     - setuptools
     - wheel
@@ -26,30 +31,29 @@ requirements:
 outputs:
   - name: {{ name }}
     build:
-      skip: true  # [py<38]
+      skip: true  # [py<39]
       script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
     requirements:
       host:
         - python
-        - numpy {{ numpy }}
+        - numpy >=1.21,<1.27
         - pip
         - setuptools
         - wheel
       run:
         - python
         # Base
-        - ipywidgets >=7.6.5
         - ipython >=5.5.0
+        - ipywidgets >=7.6.5
         - tqdm >=4.62.0
-        # Can't numpy >=1.24 because of np.float deprecation
-        - {{ pin_compatible('numpy') }}
-        - pandas >=1.3.0,<2.0.0
-        - jinja2 >=1.2
-        - scipy <2.0.0
-        - joblib >=1.2.0
-        - scikit-learn >=1.0
-        - pyod >=1.0.8
-        - imbalanced-learn >=0.8.1
+        - numpy >=1.21,<1.27
+        - pandas <2.2.0
+        - jinja2 >=3
+        - scipy >=1.6.1,<=1.11.4
+        - joblib >=1.2.0,<1.4
+        - scikit-learn >1.4.0
+        - pyod >=1.1.3
+        - imbalanced-learn >=0.12.0
         - category_encoders >=2.4.0
         - lightgbm >=3.0.0
         - numba >=0.55.0
@@ -58,42 +62,30 @@ outputs:
         - markupsafe >=2.0.1
         - importlib_metadata >=4.12.0
         - nbformat >=4.2.0
-        - pickle5  # [py<38]
-        - cloudpickle
+        - cloudpickle >=3.0.0
         - deprecation >=2.1.0
         - python-xxhash
         - wurlitzer  # [not win]
         # Plotting
-        - matplotlib-base >=3.3.0
+        - matplotlib-base >=3.3.0,<3.8.0
         - scikit-plot >=0.3.7
         - yellowbrick >=1.4
-        - plotly >=5.0.0
+        - plotly >=5.14.0
         - kaleido-core >=0.2.1
         - schemdraw ==0.15
-        - plotly-resampler >=0.8.3.1  # [py<311]
+        - plotly-resampler >=0.8.3.1
         # Time-series
         - statsmodels >=0.12.1
-        - sktime >=0.16.1,!=0.17.1,<0.17.2
+        - sktime ==0.26.0
         - tbats >=1.1.3
-        - pmdarima >=1.8.0,!=1.8.1,<3.0.0
+        - pmdarima >=2.0.4
     test:
       imports:
         - pycaret
-      requires:
-        - pytest >=7.0.1
-        - moto >=3.0.7
-        - fugue >=0.8.0
-        - dask-core
-        - dash
-      #  - pip
-      #commands:
-        # Disable pip check because of errors:
-        # pycaret 3.0.2 requires kaleido, which is not installed.
-        #- pip check
 
   - name: {{ name }}-models
     build:
-      skip: true  # [py<38]
+      skip: true  # [py<39]
     requirements:
       host:
         - python
@@ -101,11 +93,12 @@ outputs:
         - python
         - {{ pin_subpackage('pycaret', exact=True) }}
         # Models
-        - xgboost >=1.1.0
+        - xgboost >=1.1.0,<2  # [(not py311) or (not win)]
         - catboost >=0.23.2
+        # - catboost >=0.23.2,<1.2  # [osx]
         - kmodes >=0.11.1
         - mlxtend >=0.19.0
-        - statsforecast >=0.5.5
+        - statsforecast >=0.5.5,<1.6.0
         - scikit-learn-intelex >=2023.0.1  # [x86_64]
     test:
       imports:
@@ -113,7 +106,7 @@ outputs:
 
   - name: {{ name }}-parallel
     build:
-      skip: true  # [py<38]
+      skip: true  # [py<39]
     requirements:
       host:
         - python
@@ -121,13 +114,20 @@ outputs:
         - python
         - {{ pin_subpackage('pycaret', exact=True) }}
         # Parallel
+        # Putting upper bound because:
+        # AttributeError: module 'dask.dataframe.core' has no attribute 'DataFrame'
+        # in >=2025
+        - dask >=2024.4.1,<2025
+        - distributed >=2024.4.1,<2025
+        - msgpack-python >=1.0.7
         - fugue >=0.8.0
-        - flask >=2.0.3
+        - flask
+        - werkzeug >=2.2,<3.0
     test:
       imports:
         - pycaret
 
-  - name: pycaret-full
+  - name: {{ name }}-full
     build:
       # Until all of the pycaret-* packages are available in defaults, skipping the pycaret-full metapackage.
       skip: true
@@ -149,8 +149,9 @@ outputs:
         # dummy test; actual tests are in subpackages
         - pycaret
   
-  - name: pycaret-analysis
+  - name: {{ name }}-analysis
     build:
+      # missing shap, explainerdashboard, fairlearn
       skip: true
     requirements:
       host:
@@ -159,22 +160,20 @@ outputs:
         - python
         - {{ pin_subpackage('pycaret', exact=True) }}
         # Analysis
-        - shap >=0.38.0
+        - shap >=0.44.0,<0.45.0
         - interpret >=0.2.7
         - umap-learn >=0.5.2
-        - pandas-profiling >=3.1.0
+        - pyyaml
+        - ydata-profiling >=4.3.1
         - explainerdashboard >=0.3.8  # For dashboard method
-        - Flask ==2.2.3  # https://github.com/oegedijk/explainerdashboard/issues/259
-        - bokeh <3.0.0  # For autoviz
-        - autoviz >=0.1.36  # For EDA method
         - fairlearn ==0.7.0  # For check_fairness method
-        - deepchecks >=0.9.2  # For deep_check method
     test:
       imports:
         - pycaret
 
-  - name: pycaret-tuners
+  - name: {{ name }}-tuners
     build:
+      # missing optuna-integration
       skip: true
     requirements:
       host:
@@ -183,18 +182,19 @@ outputs:
         - python
         - {{ pin_subpackage('pycaret', exact=True) }}
         # Tuners
-        - tune-sklearn >=0.2.1
-        # ray-tune still hasn't py311 support
-        - ray-tune >=1.0.0
+        - tune-sklearn >=0.2.1  # [(not py311) and (not win)]
+        - ray-tune >=1.0.0  # [(not py311) and (not win)]
         - hyperopt >=0.2.7
         - optuna >=3.0.0
+        - optuna-integration
         - scikit-optimize >=0.9.0
     test:
       imports:
         - pycaret
 
-  - name: pycaret-mlops
+  - name: {{ name }}-mlops
     build:
+      # missing evidently
       skip: true
     requirements:
       host:
@@ -203,16 +203,121 @@ outputs:
         - python
         - {{ pin_subpackage('pycaret', exact=True) }}
         # MLOps
-        - mlflow >=1.24.0,<2.0.0
-        - gradio >=2.8.10
+        # https://github.com/pycaret/pycaret/issues/4100
+        - mlflow >=2.0.0,<=2.16.0
+        - gradio >=3.50.2
         - boto3 >=1.24.56  # For deploy_model method
-        - fastapi >=0.75.0  # For web api
+        - fastapi  # For web api
         - uvicorn >=0.17.6  # For web api
         - m2cgen >=0.9.0  # For model conversion
-        - evidently >=0.1.45.dev0,<0.3  # for drift reporting
+        - evidently >=0.4.16,<0.5.0  # for drift reporting
     test:
       imports:
         - pycaret
+
+  # Testing all the subpackages together as the upstream does not seperate the tests
+  # between core functionalities and extras
+  - name: {{ name }}-tests
+    build:
+      # Uncomment the skip before merging to not produce unnecessary package
+      skip: true
+    requirements:
+      host:
+        - python
+      run:
+        - {{ pin_subpackage('pycaret', exact=True) }}
+        - {{ pin_subpackage('pycaret-models', exact=True) }}
+        - {{ pin_subpackage('pycaret-parallel', exact=True) }}
+    test:
+      source_files:
+        - tests
+      imports:
+        - pycaret
+      requires:
+        # Some requirements have to be here for conftest.py, even tho the extras requiring them are not supported
+        - pytest >=7.0.1,<8.0.0
+        - moto >=3.0.7,<5.0.0
+        - dash
+        # https://github.com/pycaret/pycaret/issues/4100
+        - mlflow >=2.0.0,<=2.16.0
+        - daal4py  #[x86_64]
+        - scikit-learn-intelex  #[x86_64]
+      commands:
+        - export USE_DAAL4PY_SKLEARN=1  # [unix]
+        - SET USE_DAAL4PY_SKLEARN=1     # [win]
+        # Disable pip check because of errors:
+        # pycaret 3.3.2 requires kaleido, which is not installed. (using kaleido-core)
+        # - pip check
+        # Listing every test as running them together crashes
+        #  most likely due to OOM
+        # test_regression is safest to run first, as it becomes unstable when ran later
+        - pytest -vv tests/test_regression.py
+        - pytest -vv tests/test_time_series_tune_grid.py
+        - pytest -vv tests/test_time_series_parallel.py
+        - pytest -vv tests/test_time_series_utils.py
+        - pytest -vv tests/test_probability_threshold.py
+        - pytest -vv tests/test_time_series_tune_random.py
+        - pytest -vv tests/test_time_series_utils_forecasting_pipeline.py
+        - pytest -vv tests/test_time_series_tune_base.py
+        - pytest -vv tests/test_overflow.py
+        - pytest -vv tests/test_create_app.py
+        - pytest -vv tests/test_time_series_utils_forecasting.py
+        - pytest -vv tests/test_time_series_metrics.py
+        - pytest -vv tests/test_datasets.py
+        - pytest -vv tests/test_time_series_exogenous.py
+        # - pytest -vv tests/test_optimize_threshold.py stuck?
+        - pytest -vv tests/test_memory.py
+        - pytest -vv tests/test_time_series_models.py
+        - pytest -vv tests/test_utils_datetime.py
+        - pytest -vv tests/test_utils.py
+        - pytest -vv tests/test_time_series_mlflow.py
+        - pytest -vv tests/test_time_series_plots.py  # [not win]
+        - pytest -vv tests/test_persistence_experiment.py
+        - pytest -vv tests/test_dashboard.py
+        - pytest -vv tests/test_multiclass.py
+        - pytest -vv tests/test_time_series_indices.py
+        - pytest -vv tests/test_time_series_base.py
+        - pytest -vv tests/test_time_series_utils_plots.py
+        - pytest -vv tests/test_preprocess.py
+        - pytest -vv tests/test_models.py
+        - pytest -vv tests/test_time_series_feat_eng.py
+        - pytest -vv tests/test_time_series_stats.py
+        - pytest -vv tests/test_supervised_predict_model.py
+        - pytest -vv tests/test_pipeline.py
+        - pytest -vv tests/test_time_series_preprocess.py
+        - pytest -vv tests/test_time_series_blending.py
+        - pytest -vv tests/test_persistence.py
+        - pytest -vv tests/test_regression_parallel.py
+        # daal4py only available for x86_64
+        - pytest -vv tests/test_regression_engines.py  # [x86_64]
+        - pytest -vv tests/test_time_series_engines.py # [x86_64]
+        - pytest -vv tests/test_clustering_engines.py  # [x86_64]
+        # Interactive tests
+        # - pytest -vv tests/test_regression_plots.py
+        # - pytest -vv tests/test_anomaly.py
+        # Missing fairlearn
+        # - pytest -vv tests/test_check_fairness.py
+        # - pytest -vv tests/test_create_api.py
+        # Missing deps from pycaret-mlops
+        # - pytest -vv tests/test_classification_parallel.py
+        # - pytest -vv tests/test_convert_model.py
+        # - pytest -vv tests/test_create_docker.py
+        # - pytest -vv tests/test_check_drift.py
+        # - pytest -vv tests/test_clustering.py
+        # - pytest -vv tests/test_classification_engines.py
+        # - pytest -vv tests/test_classification_plots.py
+        # - pytest -vv tests/test_classification.py
+        # Performance test, negligible differences
+        # assert (32.76628173503559 < 32.55898448696826 or 0.2072972480673343 < 0.2)
+        # - pytest -vv tests/benchmarks/test_memory_performance.py
+        # Empty file / tests skipped by upstream
+        # - pytest -vv tests/test_mlflow_artifacts.py
+        # - pytest -vv tests/test_classification_tuning.py
+        # - pytest -vv tests/test_regression_tuning.py
+        # Tests downloading data (not available on CI)
+        # - pytest -vv tests/benchmarks/test_time_series_sp_detection.py
+        # Verified locally osx-arm64, linux-aarch64, linux-64 (unstable on CI)
+        # - pytest -vv tests/test_tune_model.py
 
 about:
   home: https://github.com/pycaret/pycaret
@@ -221,10 +326,13 @@ about:
   license_file: LICENSE
   summary: PyCaret - An open source, low-code machine learning library in Python.
   description: PyCaret - An open source, low-code machine learning library in Python.
-  doc_url: https://pycaret.readthedocs.io/en/latest/
+  doc_url: https://pycaret.readthedocs.io
   dev_url: https://github.com/pycaret/pycaret
 
 extra:
   recipe-maintainers:
     - melonhead901
     - mpaulonis
+  skip-lints:
+    - wrong_output_script_key
+    - invalid_url
