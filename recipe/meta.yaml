@@ -336,3 +336,4 @@ extra:
   skip-lints:
     - wrong_output_script_key
     - invalid_url
+
